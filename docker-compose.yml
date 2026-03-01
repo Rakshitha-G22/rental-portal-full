@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  user-app:
+    build: ./frontend/user-app
+    ports:
+      - "4200:80"
+
+  admin-app:
+    build: ./frontend/admin-app
+    ports:
+      - "4300:80"
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: rental
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"

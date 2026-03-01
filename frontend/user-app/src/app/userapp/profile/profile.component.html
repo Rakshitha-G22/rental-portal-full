@@ -1,0 +1,35 @@
+<div class="p-10 max-w-md mx-auto bg-white shadow-lg rounded-xl">
+
+  <h2 class="text-2xl font-bold mb-6 text-center">My Profile</h2>
+
+  <div class="space-y-3 mb-6">
+    <p><strong>Name:</strong> {{ user.name }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+  </div>
+
+  <div class="flex flex-col gap-3">
+
+    <!-- Back to Flats -->
+    <button
+      routerLink="/flats"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      Back to Flats
+    </button>
+
+    <!-- My Bookings -->
+    <button
+      (click)="downloadBookings()"
+      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+      View My Bookings
+    </button>
+
+    <!-- Logout -->
+    <button
+      (click)="logout()"
+      class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+      Logout
+    </button>
+
+  </div>
+
+</div>

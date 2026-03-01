@@ -1,0 +1,36 @@
+<div class="max-w-6xl mx-auto p-6">
+
+  <h2 class="text-2xl font-bold mb-6">Towers</h2>
+
+  <div *ngIf="loading" class="text-gray-500">Loading towers...</div>
+  <div *ngIf="errorMsg" class="text-red-500">{{ errorMsg }}</div>
+
+  <table *ngIf="!loading && towers.length > 0"
+         class="table-auto w-full border border-gray-300 shadow">
+
+    <thead>
+      <tr class="bg-gray-200">
+        <th class="px-4 py-2">ID</th>
+        <th class="px-4 py-2">Name</th>
+        <th class="px-4 py-2">Location</th>
+        <th class="px-4 py-2">Flats Count</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let tower of towers">
+        <td class="border px-4 py-2">{{ tower.id }}</td>
+        <td class="border px-4 py-2">{{ tower.name }}</td>
+        <td class="border px-4 py-2">{{ tower.location }}</td>
+        <td class="border px-4 py-2">{{ tower.flats_count }}</td>
+      </tr>
+    </tbody>
+
+  </table>
+
+  <div *ngIf="!loading && towers.length === 0"
+       class="text-gray-500 mt-4">
+    No towers found.
+  </div>
+
+</div>

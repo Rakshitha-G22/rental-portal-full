@@ -1,0 +1,20 @@
+<div *ngIf="loading" class="text-center mt-20">Loading flat details...</div>
+
+<div *ngIf="!loading && flat">
+  <h2 class="text-3xl font-bold mb-4">{{ flat.title }}</h2>
+  <p class="mb-2">Location: {{ flat.location }}</p>
+  <p class="mb-2">Price: ₹{{ flat.price }} / month</p>
+  <img [src]="flat.image" alt="{{ flat.title }}" class="w-full max-w-lg rounded mb-4">
+
+  <button (click)="bookFlat(flat.id)"
+          class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+    Book Now
+  </button>
+
+  <div *ngIf="message" class="mt-4 p-2 bg-green-200 text-green-800 rounded">{{ message }}</div>
+  <div *ngIf="error" class="mt-4 p-2 bg-red-200 text-red-800 rounded">{{ error }}</div>
+</div>
+
+<div *ngIf="!loading && !flat" class="text-center mt-20 text-red-600">
+  Flat not found.
+</div>

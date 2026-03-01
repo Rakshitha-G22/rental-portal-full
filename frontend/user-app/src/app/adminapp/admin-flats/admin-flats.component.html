@@ -1,0 +1,119 @@
+<h2 class="text-3xl font-bold mb-6 text-center">
+  🏢 Manage Flats
+</h2>
+
+<!-- ================== ADD / EDIT FORM ================== -->
+<div class="mb-8 max-w-6xl mx-auto p-4 bg-white rounded-xl shadow-md flex flex-wrap gap-4 justify-center">
+
+  <input [(ngModel)]="newFlat.tower_name"
+         placeholder="🏢 Tower (e.g., 1A, 1B)"
+         class="border p-2 rounded shadow-sm"/>
+
+  <input [(ngModel)]="newFlat.title"
+         placeholder="🛏 Title (e.g., 3BHK, 2BHK)"
+         class="border p-2 rounded shadow-sm"/>
+
+  <input [(ngModel)]="newFlat.location"
+         placeholder="📍 Location"
+         class="border p-2 rounded shadow-sm"/>
+
+  <input [(ngModel)]="newFlat.floor"
+         type="number"
+         placeholder="🏬 Floor"
+         class="border p-2 rounded shadow-sm"/>
+
+  <input [(ngModel)]="newFlat.price"
+         type="number"
+         placeholder="💰 Price"
+         class="border p-2 rounded shadow-sm"/>
+
+  <input [(ngModel)]="newFlat.image"
+         placeholder="🖼 Image URL"
+         class="border p-2 rounded shadow-sm"/>
+
+  <input [(ngModel)]="newFlat.amenities"
+         placeholder="✨ Amenities (Pool, Gym, Parking)"
+         class="border p-2 rounded shadow-sm"/>
+
+  <!-- ✅ ADD / UPDATE BUTTON -->
+  <button (click)="addFlat()"
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+
+    {{ editingFlatId ? '✏️ Update Flat' : '➕ Add Flat' }}
+
+  </button>
+
+  <!-- ✅ CANCEL BUTTON -->
+  <button *ngIf="editingFlatId"
+          (click)="cancelEdit()"
+          class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+    ❌ Cancel
+  </button>
+
+</div>
+
+
+<!-- ================== FLATS GRID ================== -->
+<div *ngIf="flats.length > 0"
+     class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto p-4">
+
+  <div *ngFor="let flat of flats; let i = index"
+       class="border rounded-xl shadow-lg overflow-hidden flex flex-col">
+
+    <img [src]="flat.image"
+         alt="Flat Image"
+         class="w-full h-64 object-cover"/>
+
+    <div class="p-4 flex-1 flex flex-col justify-between">
+
+      <div>
+        <h3 class="text-xl font-bold mb-2">🏠 {{ flat.title }}</h3>
+
+        <p class="text-gray-600 mb-1">
+          <strong>🏢 Tower:</strong> {{ flat.tower_name }}
+        </p>
+
+        <p class="text-gray-600 mb-1">
+          <strong>📍 Location:</strong> {{ flat.location }}
+        </p>
+
+        <p class="text-gray-600 mb-1">
+          <strong>🏬 Floor:</strong> {{ flat.floor }}
+        </p>
+
+        <p class="text-gray-800 font-semibold mb-2">
+          💰 ₹{{ flat.price }}
+        </p>
+
+        <p class="text-gray-600 mb-2">
+          <strong>✨ Amenities:</strong> {{ flat.amenities || 'Not specified' }}
+        </p>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="flex flex-col gap-2 mt-3">
+
+        <!-- ✏️ EDIT BUTTON -->
+        <button (click)="editFlat(flat)"
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full">
+          ✏️ Edit
+        </button>
+
+        <!-- 🗑 DELETE BUTTON -->
+        <button (click)="deleteFlat(i)"
+                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition w-full">
+          🗑 Delete
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- EMPTY STATE -->
+<div *ngIf="flats.length === 0"
+     class="text-gray-500 text-center text-lg mt-6">
+  📭 No flats added yet. Start by adding new flats above.
+</div>

@@ -1,7 +1,7 @@
 # backend/app/routes/admin.py
 
 from flask import Blueprint, request, jsonify
-from app.models import Flat, Booking, SupportQuery, User, db
+from app.models import Flat, Booking, User, db
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
 
@@ -11,18 +11,24 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 # --------------------------------
 # Admin-only decorator
 # --------------------------------
+from functools import wraps
+
 def admin_only(fn):
+    @wraps(fn)
     @jwt_required()
     def wrapper(*args, **kwargs):
+
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
 
-        if not user or user.role != "admin":
+        if not user:
+            return jsonify({"msg": "User not found"}), 404
+
+        if user.role != "admin":
             return jsonify({"msg": "Admins only"}), 403
 
         return fn(*args, **kwargs)
 
-    wrapper.__name__ = fn.__name__
     return wrapper
 
 
@@ -35,32 +41,23 @@ def add_flat():
     data = request.get_json() or {}
 
     try:
-        tower_name = data.get('tower_name', '').strip()
-        title = data.get('title', '').strip()
-        location = data.get('location', '').strip()
-        floor = int(data.get('floor', 0))
-        price = int(data.get('price', 0))
-        image = data.get('image', '').strip()
         amenities_list = data.get('amenities', [])
-
         if not isinstance(amenities_list, list):
             amenities_list = []
 
-        amenities = ','.join(amenities_list)
-
-        if not tower_name or not title:
-            return jsonify({"msg": "Tower and title are required"}), 400
-
         flat = Flat(
-            tower_name=tower_name,
-            title=title,
-            location=location,
-            floor=floor,
-            price=price,
-            image=image,
-            amenities=amenities,
+            tower_name=data.get('tower_name', '').strip(),
+            title=data.get('title', '').strip(),
+            location=data.get('location', '').strip(),
+            floor=int(data.get('floor', 0)),
+            price=int(data.get('price', 0)),
+            image=data.get('image', '').strip(),
+            amenities=','.join(amenities_list),
             is_booked=False
         )
+
+        if not flat.tower_name or not flat.title:
+            return jsonify({"msg": "Tower and title are required"}), 400
 
         db.session.add(flat)
         db.session.commit()
@@ -72,7 +69,6 @@ def add_flat():
 
     except Exception as e:
         db.session.rollback()
-        print("Error adding flat:", e)
         return jsonify({
             "msg": "Failed to add flat",
             "error": str(e)
@@ -86,19 +82,19 @@ def add_flat():
 @admin_only
 def get_all_flats():
     flats = Flat.query.order_by(Flat.id.desc()).all()
-    result = []
-    for f in flats:
-        result.append({
-            "id": f.id,
-            "tower_name": f.tower_name,
-            "title": f.title,
-            "location": f.location,
-            "floor": f.floor,
-            "price": f.price,
-            "image": f.image,
-            "is_booked": f.is_booked,
-            "amenities": f.amenities.split(',') if f.amenities else []
-        })
+
+    result = [{
+        "id": f.id,
+        "tower_name": f.tower_name,
+        "title": f.title,
+        "location": f.location,
+        "floor": f.floor,
+        "price": f.price,
+        "image": f.image,
+        "is_booked": f.is_booked,
+        "amenities": f.amenities.split(',') if f.amenities else []
+    } for f in flats]
+
     return jsonify(result), 200
 
 
@@ -132,12 +128,11 @@ def update_flat(id):
 @admin_bp.route('/flat/<int:flat_id>', methods=['DELETE'])
 @admin_only
 def delete_flat(flat_id):
-    flat = Flat.query.get(flat_id)
-    if not flat:
-        return jsonify({"msg": "Flat not found"}), 404
+    flat = Flat.query.get_or_404(flat_id)
 
     db.session.delete(flat)
     db.session.commit()
+
     return jsonify({"message": "Flat deleted successfully"}), 200
 
 
@@ -147,6 +142,7 @@ def delete_flat(flat_id):
 @admin_bp.route('/bookings', methods=['GET'])
 @admin_only
 def get_all_bookings():
+
     bookings = db.session.query(
         Booking.id,
         Booking.booked_at,
@@ -158,15 +154,14 @@ def get_all_bookings():
      .join(Flat, Booking.flat_id == Flat.id)\
      .all()
 
-    result = []
-    for b in bookings:
-        result.append({
-            "id": b.id,
-            "booked_on": b.booked_at,
-            "status": b.status,
-            "user_email": b.user_email,
-            "flat_title": f"{b.tower_name} {b.flat_title}"
-        })
+    result = [{
+        "id": b.id,
+        "booked_on": b.booked_at.isoformat() if b.booked_at else None,
+        "status": b.status,
+        "user_email": b.user_email,
+        "flat_title": f"{b.tower_name} {b.flat_title}"
+    } for b in bookings]
+
     return jsonify(result), 200
 
 
@@ -180,6 +175,12 @@ def update_booking_status(id):
     data = request.get_json() or {}
 
     booking.status = data.get("status", booking.status)
+
+    # If approved, mark flat booked
+    if booking.status.lower() == "approved":
+        flat = Flat.query.get(booking.flat_id)
+        flat.is_booked = True
+
     db.session.commit()
     return jsonify({"message": "Status updated"}), 200
 
@@ -191,22 +192,23 @@ def update_booking_status(id):
 @admin_only
 def get_all_queries():
     queries = SupportQuery.query.all()
-    result = []
-    for q in queries:
-        result.append({
-            "id": q.id,
-            "user_id": q.user_id,
-            "message": q.message,
-            "status": q.status,
-            "created_at": q.created_at
-        })
+
+    result = [{
+        "id": q.id,
+        "user_id": q.user_id,
+        "message": q.message,
+        "status": q.status,
+        "created_at": q.created_at
+    } for q in queries]
+
     return jsonify(result), 200
 
 
 # --------------------------------
-# Get All Towers
+# Get Towers Summary
 # --------------------------------
 @admin_bp.route("/towers", methods=["GET"])
+@admin_only
 def get_towers():
 
     towers = (
@@ -219,55 +221,20 @@ def get_towers():
         .all()
     )
 
-    result = []
-
-    for t in towers:
-        result.append({
-            "id": None,
-            "name": t.name,
-            "location": t.location,
-            "flats_count": t.flats_count
-        })
+    result = [{
+        "name": t.name,
+        "location": t.location,
+        "flats_count": t.flats_count
+    } for t in towers]
 
     return jsonify(result), 200
 
 
-
-@admin_bp.route("/bookings/<int:id>/decline", methods=["PUT"])
-@jwt_required()
-@admin_only
-def decline_booking(id):
-    booking = Booking.query.get_or_404(id)
-
-    booking.status = "declined"
-
-    # Block the flat
-    flat = Flat.query.get(booking.flat_id)
-    flat.status = "blocked"
-
-    db.session.commit()
-
-    return jsonify({"msg": "Booking declined and flat blocked"})
-
-@admin_bp.route("/bookings/<int:id>/approve", methods=["PUT"])
-@jwt_required()
-@admin_only
-def approve_booking(id):
-    booking = Booking.query.get_or_404(id)
-
-    booking.status = "approved"
-
-    flat = Flat.query.get(booking.flat_id)
-    flat.status = "booked"
-
-    db.session.commit()
-
-    return jsonify({"msg": "Booking approved and flat marked booked"})
-
-from sqlalchemy import func
-
+# --------------------------------
+# Reports (Booking Stats)
+# --------------------------------
 @admin_bp.route("/reports", methods=["GET"])
-@jwt_required()
+@admin_only
 def get_reports():
 
     approved = Booking.query.filter(

@@ -60,9 +60,15 @@ export class BookingConfirmComponent implements OnInit {
 
 
   confirmBooking() {
-  const token = localStorage.getItem('token');
+
+
+   console.log("Stored token:", localStorage.getItem('access_token'));
+
+   const token = localStorage.getItem('access_token');
+
   if (!token) {
     alert("Please login first");
+    this.router.navigate(['/auth']);
     return;
   }
 
@@ -72,7 +78,7 @@ export class BookingConfirmComponent implements OnInit {
   }
 
   this.bookingService.createBooking(this.flat.id, token).subscribe({
-    next: (res: any) => {
+    next: () => {
       alert("Booking Confirmed Successfully!");
       this.router.navigate(['/my-bookings']);
     },

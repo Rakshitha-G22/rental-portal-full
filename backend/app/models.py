@@ -53,21 +53,9 @@ class Booking(db.Model):
 # ============================
 # SUPPORT QUERY MODEL
 # ============================
-class SupportQuery(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    message = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(50), default="pending")
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-
-# ============================
-# PAYMENT MODEL
-# ============================
-class Payment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    booking_id = db.Column(db.Integer)
-    user_id = db.Column(db.Integer)
-    amount = db.Column(db.Float)
-    payment_mode = db.Column(db.String(50))
-    status = db.Column(db.String(50), default="pending")
+# class SupportQuery(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+#     message = db.Column(db.Text, nullable=False)
+#     status = db.Column(db.String(50), default="pending")
+#     created_at = db.Column(db.DateTime, default=datetime.utcnow)

@@ -63,16 +63,27 @@
           </ul>
         </div>
 
-        <a 
-          [routerLink]="['/booking-confirm', flat?.id]"
-          [ngClass]="{
-    'bg-green-600 hover:bg-green-700': !flat?.is_booked,
-    'bg-red-600 cursor-not-allowed': flat?.is_booked
-  }"
-  class="text-white px-6 py-3 rounded transition"
-          [class.disabled]="flat?.is_booked">
-          {{ flat?.is_booked ? 'Already Booked' : 'Book Now' }}
-        </a>
+<!-- BOOK NOW -->
+<a 
+  *ngIf="flat?.booking_status === null"
+  [routerLink]="['/booking-confirm', flat?.id]"
+  class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded transition">
+  Book Now
+</a>
+
+<!-- WAIT APPROVAL -->
+<button 
+  *ngIf="flat?.booking_status === 'pending'"
+  class="bg-yellow-600 text-white px-6 py-3 rounded cursor-not-allowed">
+  Wait until admin approves
+</button>
+
+<!-- ALREADY BOOKED -->
+<button 
+  *ngIf="flat?.booking_status === 'approved'"
+  class="bg-red-600 text-white px-6 py-3 rounded cursor-not-allowed">
+  Already Booked
+</button>
       </div>
     </div>
   </div>

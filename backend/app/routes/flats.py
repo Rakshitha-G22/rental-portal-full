@@ -14,13 +14,14 @@ def get_all_flats():
 
     for flat in flats:
 
-        # Check if any active booking exists (Approved or Pending)
-        active_booking = Booking.query.filter(
-            Booking.flat_id == flat.id,
-            func.lower(Booking.status).in_(["approved", "pending"])
+        booking = Booking.query.filter(
+            Booking.flat_id == flat.id
         ).first()
 
-        is_booked = active_booking is not None
+        booking_status = None
+
+        if booking:
+            booking_status = booking.status.lower()
 
         amenities_list = (
             [a.strip() for a in flat.amenities.split(",")]
@@ -36,7 +37,7 @@ def get_all_flats():
             "tower_name": flat.tower_name,
             "floor": flat.floor,
             "amenities": amenities_list,
-            "is_booked": is_booked
+            "booking_status": booking_status
         })
 
     return jsonify(flat_list), 200

@@ -44,15 +44,15 @@ export class AuthComponent {
         password: this.formData.password
       }).subscribe(res => {
 
-        localStorage.setItem('token', res.access_token);
+        localStorage.setItem('access_token', res.access_token);
         localStorage.setItem('role', res.role);
         localStorage.setItem('name', res.name);
 
         if (res.role === 'admin') {
-  this.router.navigate(['/admin']);
-} else {
-  this.router.navigate(['/flats']);
-}
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/flats']);
+        }
 
 
       });

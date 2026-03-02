@@ -59,7 +59,7 @@ export class AdminFlatsComponent implements OnInit {
   }
 
   loadFlats() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
 
     this.http.get<Flat[]>(
       'http://localhost:5000/api/admin/flats',
@@ -68,7 +68,7 @@ export class AdminFlatsComponent implements OnInit {
   }
 
   addFlat() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
 
     if (this.editingFlatId) {
       this.updateFlat();   
@@ -92,7 +92,7 @@ export class AdminFlatsComponent implements OnInit {
   }
 
   updateFlat() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
 
     this.http.put(
       `http://localhost:5000/api/admin/flat/${this.editingFlatId}`,

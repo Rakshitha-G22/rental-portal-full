@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import Booking, Flat, db
+from app.models import Booking, Flat, db, User
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 from flask import send_file, jsonify
@@ -20,7 +20,7 @@ bookings_bp = Blueprint("bookings_bp", __name__)
 @bookings_bp.route("", methods=["POST"])
 @jwt_required()
 def create_booking():
-    user_id = int(get_jwt_identity())
+    user_id = get_jwt_identity()
     data = request.get_json()
 
     flat_id = data.get("flat_id")
@@ -28,10 +28,25 @@ def create_booking():
     if not flat_id:
         return jsonify({"msg": "Flat ID required"}), 400
 
+    # ✅ Check if flat exists
+    flat = Flat.query.get(flat_id)
+    if not flat:
+        return jsonify({"msg": "Flat not found"}), 404
+
+    # ✅ Prevent double booking (pending or approved)
+    existing_booking = Booking.query.filter(
+        Booking.flat_id == flat_id,
+        Booking.status.in_(["pending", "approved"])
+    ).first()
+
+    if existing_booking:
+        return jsonify({"msg": "Flat already booked or pending approval"}), 400
+
+    # ✅ Create booking
     new_booking = Booking(
         user_id=user_id,
         flat_id=flat_id,
-        status="confirmed"
+        status="pending"
     )
 
     db.session.add(new_booking)
@@ -54,8 +69,9 @@ def my_bookings():
         user_id = int(get_jwt_identity())
 
         bookings = (
-            db.session.query(Booking, Flat)
+            db.session.query(Booking, Flat, User)
             .join(Flat, Booking.flat_id == Flat.id)
+            .join(User, Booking.user_id == User.id)
             .filter(Booking.user_id == user_id)
             .order_by(Booking.booked_at.desc())
             .all()
@@ -63,9 +79,10 @@ def my_bookings():
 
         result = []
 
-        for booking, flat in bookings:
+        for booking, flat, user in bookings:
             result.append({
                 "id": booking.id,
+                "user_email": user.email,   
                 "status": booking.status,
                 "booked_on": booking.booked_at.isoformat() if booking.booked_at else None,
                 "flat_id": flat.id,
@@ -103,7 +120,7 @@ def cancel_booking(booking_id):
     if booking.user_id != user_id:
         return jsonify({"msg": "Unauthorized"}), 403
 
-    booking.status = "Cancelled"
+    booking.status = "rejected"
     db.session.commit()
 
     return jsonify({"msg": "Booking cancelled successfully"}), 200

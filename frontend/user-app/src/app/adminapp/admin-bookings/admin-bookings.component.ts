@@ -20,15 +20,20 @@ export class AdminBookingsComponent implements OnInit {
   }
 
   // Helper to get JWT headers
-  private getAuthHeaders(): { headers: HttpHeaders } {
-    const token = localStorage.getItem('access_token'); // must exist
-    if (!token) {
-      alert('No JWT token found! Please log in as admin.');
-      throw new Error('JWT missing');
-    }
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return { headers };
+   private getAuthHeaders() {
+  const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    alert("Session expired. Please login again.");
+    throw new Error("Token not found");
   }
+
+  return {
+    headers: new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    })
+  };
+}
 
   // Load bookings from backend
   loadBookings() {

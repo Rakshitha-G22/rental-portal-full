@@ -18,7 +18,7 @@ export class MyBookingsComponent implements OnInit {
   constructor(private bookingService: BookingService) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
 
     if (!token) {
       this.msg = "Please login first";
@@ -43,7 +43,7 @@ export class MyBookingsComponent implements OnInit {
   }
 
   cancel(booking: any) {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     if (!token) return;
 
     if (!confirm("Are you sure you want to cancel this booking?")) return;
@@ -61,7 +61,7 @@ export class MyBookingsComponent implements OnInit {
 
   downloadPDF(id: number) {
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('access_token');
   if (!token) {
     alert("Please login first");
     return;

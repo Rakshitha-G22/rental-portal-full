@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FlatService } from '../services/flat.service';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { Flat } from '../services/flat.service';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-flats',
@@ -28,16 +29,24 @@ export class FlatsComponent implements OnInit {
   locations: string[] = [];
   priceRanges: string[] = ['0-5000', '5000-10000', '10000-20000', '20000+'];
 
-  constructor(private flatService: FlatService) {}
+  constructor(private flatService: FlatService,private router: Router) {}
 
   ngOnInit(): void {
     this.loadFlats();
   }
 
+  confirmBooking(flatId: number) {
+  const confirmed = confirm("Do you want to book this flat?");
+  
+  if (confirmed) {
+    this.router.navigate(['/booking-confirm', flatId]);
+  }
+  }
+
   loadFlats() {
   this.flatService.getAllFlats().subscribe({
     next: (data: any[]) => {
-      console.log("API DATA:", data);  // 👈 add this once for checking
+      console.log("API DATA:", data);  
 
       this.flats = data;
       this.allFlats = data;

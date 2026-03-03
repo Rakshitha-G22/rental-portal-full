@@ -17,18 +17,41 @@
 
 </div>
 
-<div class="mb-6">
+<div class="mb-6 flex gap-4">
+
+  <!-- Tower -->
   <select 
-    [(ngModel)]="location" 
+    [(ngModel)]="selectedTower" 
     (change)="filterFlats()"
     class="border p-2 rounded">
+    <option value="">All Towers</option>
+    <option *ngFor="let tower of towers" [value]="tower">
+      {{ tower }}
+    </option>
+  </select>
 
-    <option value="">Location</option>
-    <option *ngFor="let location of location" [value]="location">
+  <!-- Location -->
+  <select 
+    [(ngModel)]="selectedLocation" 
+    (change)="filterFlats()"
+    class="border p-2 rounded">
+    <option value="">All Locations</option>
+    <option *ngFor="let location of locations" [value]="location">
       {{ location }}
     </option>
-
   </select>
+
+  <!-- Price -->
+  <select 
+    [(ngModel)]="selectedPriceRange" 
+    (change)="filterFlats()"
+    class="border p-2 rounded">
+    <option value="">All Prices</option>
+    <option *ngFor="let range of priceRanges" [value]="range">
+      {{ range }}
+    </option>
+  </select>
+
 </div>
 
 

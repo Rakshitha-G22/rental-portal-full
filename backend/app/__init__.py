@@ -52,11 +52,15 @@ def create_app():
     # ==========================
     # CORS CONFIG ⭐⭐⭐⭐⭐ (MOST IMPORTANT)
     # ==========================
-    CORS(app,
+    CORS(
+        app,
         supports_credentials=True,
         resources={
             r"/api/*": {
-                "origins": "https://rental-portal-full-production.up.railway.app",
+                "origins": [
+                    "http://localhost:4200",
+                    "https://rental-portal-full-production.up.railway.app"
+                ],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization"]
             }

@@ -13,10 +13,14 @@ def create_app():
 
     app = Flask(__name__)
 
-    # Load config
+    # ==========================
+    # CONFIG
+    # ==========================
     app.config.from_object("config.Config")
 
-    # JWT Config
+    # ==========================
+    # JWT CONFIG
+    # ==========================
     app.config["JWT_SECRET_KEY"] = os.getenv(
         "JWT_SECRET_KEY",
         "rental-portal-super-secure-jwt-secret-key"
@@ -24,7 +28,9 @@ def create_app():
 
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=5)
 
-    # Database Config
+    # ==========================
+    # DATABASE CONFIG
+    # ==========================
     db_url = os.getenv("DATABASE_URL")
 
     if not db_url:
@@ -37,36 +43,45 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # Init Extensions
+    # ==========================
+    # EXTENSIONS INIT
+    # ==========================
     db.init_app(app)
     jwt.init_app(app)
 
- 
-    from flask_cors import CORS
-
+    # ==========================
+    # CORS CONFIG ⭐⭐⭐⭐⭐ (MOST IMPORTANT)
+    # ==========================
     CORS(app,
-    supports_credentials=True,
-    origins=[
-        "https://rental-portal-full-production.up.railway.app"
-    ],
-    allow_headers=["Content-Type", "Authorization"],
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-)
+        supports_credentials=True,
+        resources={
+            r"/api/*": {
+                "origins": "https://rental-portal-full-production.up.railway.app",
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                "allow_headers": ["Content-Type", "Authorization"]
+            }
+        }
+    )
 
-    # Import Models + Routes
-    from .models import User, Flat, Booking
+    # ==========================
+    # IMPORT ROUTES
+    # ==========================
     from .routes.auth import auth_bp
     from .routes.flats import flats_bp
     from .routes.admin import admin_bp
     from .routes.bookings import bookings_bp
 
-    # Register Blueprints
+    # ==========================
+    # REGISTER BLUEPRINTS
+    # ==========================
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(flats_bp, url_prefix="/api/flats")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
     app.register_blueprint(bookings_bp, url_prefix="/api/bookings")
 
-    # Create Tables
+    # ==========================
+    # CREATE TABLES (Dev Only)
+    # ==========================
     with app.app_context():
         db.create_all()
 

@@ -50,7 +50,7 @@ export class AuthComponent {
 
           // ✅ Redirect to dashboard after 1.5s
           setTimeout(() => {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(['/flats']);
           }, 1500);
 
         } else {
@@ -89,7 +89,7 @@ export class AuthComponent {
           // ✅ Redirect to dashboard after 1.5s
           setTimeout(() => {
             
-           this.router.navigate(['/dashboard']);
+           this.router.navigate(['/flats']);
           }, 1500);
 
         } else {

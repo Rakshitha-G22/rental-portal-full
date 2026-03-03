@@ -1,79 +1,49 @@
+# backend/app/routes/auth.py
 from flask import Blueprint, request, jsonify
 from .. import db
 from ..models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 
-auth_bp = Blueprint("auth_bp", __name__)
+auth_bp = Blueprint("auth_bp", __name__, url_prefix="/api/auth")
 
-
-# -------------------------
-# REGISTER
-# -------------------------
-@auth_bp.route("/register", methods=["POST", "OPTIONS"])
+# -----------------------------
+# Register
+# -----------------------------
+@auth_bp.route("/register", methods=["POST"])
 def register():
-
-    if request.method == "OPTIONS":
-        return jsonify({}), 200
-
-    data = request.get_json()
-
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
+    data = request.get_json() or {}
+    name = data.get("name", "")
+    email = data.get("email", "")
+    password = data.get("password", "")
 
     if not name or not email or not password:
-        return jsonify({"msg": "All fields required"}), 400
+        return jsonify({"msg": "All fields are required"}), 400
 
-    # Check user exists
     if User.query.filter_by(email=email).first():
         return jsonify({"msg": "User already exists"}), 400
 
     hashed_password = generate_password_hash(password)
-
-    new_user = User(
-        name=name,
-        email=email,
-        password=hashed_password,
-        role="user"
-    )
-
-    db.session.add(new_user)
+    user = User(name=name, email=email, password=hashed_password)
+    db.session.add(user)
     db.session.commit()
+    return jsonify({"msg": "User registered successfully"})
 
-    return jsonify({
-        "msg": "Registration successful",
-        "name": name
-    }), 201
-
-
-# -------------------------
-# LOGIN
-# -------------------------
-@auth_bp.route("/login", methods=["POST", "OPTIONS"])
+# -----------------------------
+# Login
+# -----------------------------
+@auth_bp.route("/login", methods=["POST"])
 def login():
+    data = request.get_json() or {}
+    email = data.get("email", "")
+    password = data.get("password", "")
 
-    if request.method == "OPTIONS":
-        return jsonify({}), 200
-
-    data = request.get_json()
-
-    email = data.get("email")
-    password = data.get("password")
+    if not email or not password:
+        return jsonify({"msg": "Email and password required"}), 400
 
     user = User.query.filter_by(email=email).first()
-
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
-
-    if not check_password_hash(user.password, password):
+    if not user or not check_password_hash(user.password, password):
         return jsonify({"msg": "Invalid credentials"}), 401
 
-    # Create JWT token
-    token = create_access_token(identity=str(user.id))
-
-    return jsonify({
-        "token": token,
-        "name": user.name,
-        "msg": "Login successful"
-    }), 200
+    access_token = create_access_token(identity={"id": user.id})
+    return jsonify({"token": access_token, "msg": f"Welcome {user.name}", "name": user.name})

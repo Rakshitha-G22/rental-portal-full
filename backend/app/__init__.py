@@ -41,8 +41,13 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
 
-    # CORS (Very Important ⭐)
-    CORS(app, supports_credentials=True)
+ 
+    CORS(app, supports_credentials=True, resources={
+    r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS", "PUT", "DELETE"]
+    }
+})
 
     # Import Models + Routes
     from .models import User, Flat, Booking

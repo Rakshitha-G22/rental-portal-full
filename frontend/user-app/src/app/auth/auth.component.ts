@@ -9,16 +9,13 @@ import { HttpClientModule } from '@angular/common/http';
 @Component({
   selector: 'app-auth',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,        
-    HttpClientModule
-  ],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './auth.component.html'
 })
 export class AuthComponent {
 
   isLogin = true;
+  errorMsg = '';
 
   formData = {
     name: '',
@@ -26,60 +23,70 @@ export class AuthComponent {
     password: ''
   };
 
-  constructor(private http: HttpClient, private router: Router) {}
-
-  
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   toggleMode() {
     this.isLogin = !this.isLogin;
+    this.errorMsg = '';
   }
 
   submit() {
 
-  if (this.isLogin) {
+    this.errorMsg = '';
 
-    // LOGIN
-    this.http.post<any>(
-      `${environment.apiUrl}/auth/login`,
-      {
-        email: this.formData.email,
-        password: this.formData.password
-      }
-    ).subscribe({
-      next: (res) => {
+    if (this.isLogin) {
 
-        localStorage.setItem('access_token', res.access_token);
-        localStorage.setItem('role', res.role);
-        localStorage.setItem('name', res.name);
-
-        if (res.role === 'admin') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/flats']);
+      // LOGIN
+      this.http.post<any>(
+        `${environment.apiUrl}/auth/login`,
+        {
+          email: this.formData.email,
+          password: this.formData.password
         }
+      ).subscribe({
+        next: (res) => {
 
-      },
-      error: () => {
-        alert("Invalid email or password ❌");
-      }
-    });
+          localStorage.setItem('access_token', res.access_token);
+          localStorage.setItem('role', res.role);
+          localStorage.setItem('name', res.name);
 
-  } else {
+          // Role based navigation
+          if (res.role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/flats']);
+          }
 
-    // REGISTER
-    this.http.post(
-      `${environment.apiUrl}/auth/register`,
-      this.formData
-    ).subscribe({
-      next: () => {
-        alert("Registration successful! Please login ✅");
-        this.isLogin = true;
-      },
-      error: () => {
-        alert("Registration failed ❌");
-      }
-    });
+        },
+        error: () => {
+          this.errorMsg = "Invalid email or password";
+        }
+      });
 
+    } else {
+
+      // REGISTER
+      this.http.post(
+        `${environment.apiUrl}/auth/register`,
+        {
+          name: this.formData.name,
+          email: this.formData.email,
+          password: this.formData.password,
+          role: 'user'   // Default role
+        }
+      ).subscribe({
+        next: () => {
+          alert("Registration successful! Please login");
+          this.isLogin = true;
+        },
+        error: () => {
+          this.errorMsg = "Registration failed";
+        }
+      });
+
+    }
   }
-}
 }

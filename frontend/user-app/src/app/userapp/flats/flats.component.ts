@@ -20,6 +20,7 @@ export class FlatsComponent implements OnInit {
   towers: string[] = [];
   allFlats: Flat[] = [];
   selectedTower: string = '';
+  location: string = '';
 
   constructor(private flatService: FlatService) {}
 
@@ -45,13 +46,14 @@ export class FlatsComponent implements OnInit {
   }
 
   filterFlats() {
-    if (!this.selectedTower) {
+    if (!this.location) {
       this.flats = this.allFlats;
     } else {
       this.flats = this.allFlats.filter(
-        flat => flat.tower_name === this.selectedTower
+        flat => flat.location === this.location
       );
     }
+
   }
   
 }

@@ -1,54 +1,22 @@
-<div class="w-full max-w-md mx-auto p-6 bg-white rounded-xl shadow-xl mt-10">
+<div class="auth-container">
 
-  <!-- Toast -->
-  <div *ngIf="toastMessage"
-       class="mb-4 p-3 rounded"
-       [ngClass]="toastType === 'success' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'">
-    {{ toastMessage }}
+  <h2>{{ isLogin ? 'Login' : 'Register' }}</h2>
+
+  <div *ngIf="!isLogin">
+    <input type="text" placeholder="Name" [(ngModel)]="name">
   </div>
 
-  <!-- Login Form -->
-  <form *ngIf="isLogin" (ngSubmit)="login()">
-    <h2 class="text-2xl font-bold mb-4">Login</h2>
-    <input type="email" placeholder="Email" [(ngModel)]="email" name="email"
-           class="w-full mb-4 p-2 border rounded" required>
-    <input type="password" placeholder="Password" [(ngModel)]="password" name="password"
-           class="w-full mb-4 p-2 border rounded" required>
+  <input type="email" placeholder="Email" [(ngModel)]="email">
+  <input type="password" placeholder="Password" [(ngModel)]="password">
 
-    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-      Login
-    </button>
+  <button (click)="submit()">
+    {{ isLogin ? 'Login' : 'Register' }}
+  </button>
 
-    <p class="mt-2 text-sm text-center">
-      New user? 
-      <a (click)="switchToRegister()" class="text-blue-600 hover:underline cursor-pointer">
-        Register here
-      </a>
-    </p>
-  </form>
+  <p style="color:red">{{ errorMsg }}</p>
 
-  <!-- Register Form -->
-  <form *ngIf="!isLogin" (ngSubmit)="register()">
-    <h2 class="text-2xl font-bold mb-4">Register</h2>
-    <input type="text" placeholder="Name" [(ngModel)]="name" name="name"
-           class="w-full mb-4 p-2 border rounded" required>
-    <input type="email" placeholder="Email" [(ngModel)]="email" name="email"
-           class="w-full mb-4 p-2 border rounded" required>
-    <input type="password" placeholder="Password" [(ngModel)]="password" name="password"
-           class="w-full mb-4 p-2 border rounded" required>
-
-    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
-      Register
-    </button>
-
-    <p class="mt-2 text-sm text-center">
-      Already have an account? 
-      <a (click)="switchToLogin()" class="text-blue-600 hover:underline cursor-pointer">
-        Login here
-      </a>
-    </p>
-  </form>
-  <!-- src/app/app.component.html -->
-<!-- <router-outlet></router-outlet> -->
+  <p (click)="toggleMode()" style="cursor:pointer">
+    {{ isLogin ? 'Create account' : 'Already have account? Login' }}
+  </p>
 
 </div>

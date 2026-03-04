@@ -1,12 +1,15 @@
 import os
+from flask_migrate import Migrate
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from datetime import timedelta
 
+
 db = SQLAlchemy()
 jwt = JWTManager()
+
 
 
 def create_app():
@@ -49,6 +52,8 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
 
+    migrate = Migrate(app, db)
+
     # ==========================
     # CORS CONFIG ⭐⭐⭐⭐⭐ (MOST IMPORTANT)
     # ==========================
@@ -86,7 +91,7 @@ def create_app():
     # ==========================
     # CREATE TABLES (Dev Only)
     # ==========================
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
 
     return app

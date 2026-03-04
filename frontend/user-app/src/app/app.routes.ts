@@ -7,14 +7,29 @@ import { BookingConfirmComponent } from './userapp/booking-confirm/booking-confi
 import { MyBookingsComponent } from './userapp/my-bookings/my-bookings.component';
 import { ProfileComponent } from './userapp/profile/profile.component';
 import { SupportComponent } from './userapp/support/support.component';
+import { AuthGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'auth', component: AuthComponent },
   { path: 'home', component: HomeComponent },
   { path: 'flats', component: FlatsComponent },
-  { path: 'booking-confirm/:id',component: BookingConfirmComponent},
-  { path: 'my-bookings', component: MyBookingsComponent },
+{
+ path: 'booking-confirm/:id',
+ loadComponent: () =>
+   import('./userapp/booking-confirm/booking-confirm.component')
+   .then(m => m.BookingConfirmComponent),
+ canMatch: [AuthGuard]
+},
+
+{
+  path: 'my-bookings',
+  loadComponent: () =>
+    import('./userapp/my-bookings/my-bookings.component')
+      .then(m => m.MyBookingsComponent),
+  canMatch: [AuthGuard]
+},
+
   { path: 'profile', component: ProfileComponent },
   { path: 'support', component: SupportComponent },
 
@@ -25,6 +40,7 @@ export const routes: Routes = [
   },
 
   { path: '**', redirectTo: '' },
+
 ];
 
 

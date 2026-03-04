@@ -1,110 +1,133 @@
 import { Component, OnInit } from '@angular/core';
 import { FlatService } from '../services/flat.service';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { Flat } from '../services/flat.service';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-flats',
   templateUrl: './flats.component.html',
   standalone: true,
-  imports:[CommonModule,RouterModule,HttpClientModule,FormsModule]
+  imports: [CommonModule, RouterModule, HttpClientModule, FormsModule]
 })
 export class FlatsComponent implements OnInit {
 
   flats: any[] = [];
+  allFlats: any[] = [];
+
   loading: boolean = true;
   errorMsg: string = '';
+
   towers: string[] = [];
-  allFlats: any[] = [];
+  locations: string[] = [];
+
   selectedTower: string = '';
   selectedLocation: string = '';
   selectedPriceRange: string = '';
 
+  isLoggedIn = false;
 
+  priceRanges: string[] = [
+    '0-5000',
+    '5000-10000',
+    '10000-20000',
+    '20000+'
+  ];
 
-  locations: string[] = [];
-  priceRanges: string[] = ['0-5000', '5000-10000', '10000-20000', '20000+'];
+  constructor(
+    private flatService: FlatService,
+    private router: Router
+  ) {}
 
-  constructor(private flatService: FlatService,private router: Router) {}
+  // ⭐ Load Flats
 
-  ngOnInit(): void {
-    this.loadFlats();
-  }
+ngOnInit(): void {
+  this.loadFlats();
 
-  confirmBooking(flatId: number) {
-  const confirmed = confirm("Do you want to book this flat?");
-  
-  if (confirmed) {
-    this.router.navigate(['/booking-confirm', flatId]);
-  }
-  }
-
+  const token = localStorage.getItem('access_token');
+  this.isLoggedIn = !!token;
+}
+  // ⭐ Load Flats From API
   loadFlats() {
-  this.flatService.getAllFlats().subscribe({
-    next: (data: any[]) => {
-      console.log("API DATA:", data);  
 
-      this.flats = data;
-      this.allFlats = data;
+    this.flatService.getAllFlats().subscribe({
 
- 
-      this.towers = [...new Set(
-        data.map(flat => flat.tower_name)
-      )];
+      next: (data: any[]) => {
 
-     
-      this.locations = [...new Set(
-        data.map(flat => flat.location)
-      )];
+        this.flats = data;
+        this.allFlats = data;
 
-      console.log("Locations:", this.locations); 
+        this.towers = [...new Set(data.map(f => f.tower_name))];
+        this.locations = [...new Set(data.map(f => f.location))];
 
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error(err);
-      this.errorMsg = 'Failed to load flats';
-      this.loading = false;
-    }
-  });
-}
+        this.loading = false;
+      },
 
-  filterFlats() {
-  this.flats = this.allFlats.filter(flat => {
-
-    // Tower filter
-    const towerMatch = this.selectedTower 
-      ? flat.tower_name === this.selectedTower 
-      : true;
-
-    // Location filter
-    const locationMatch = this.selectedLocation
-      ? flat.location === this.selectedLocation
-      : true;
-
-    // Price filter
-    let priceMatch = true;
-
-    if (this.selectedPriceRange) {
-      const price = flat.price;
-
-      if (this.selectedPriceRange === '0-5000') {
-        priceMatch = price >= 0 && price <= 5000;
-      } else if (this.selectedPriceRange === '5000-10000') {
-        priceMatch = price > 5000 && price <= 10000;
-      } else if (this.selectedPriceRange === '10000-20000') {
-        priceMatch = price > 10000 && price <= 20000;
-      } else if (this.selectedPriceRange === '20000+') {
-        priceMatch = price > 20000;
+      error: () => {
+        this.errorMsg = "Failed to load flats";
+        this.loading = false;
       }
-    }
 
-    return towerMatch && locationMatch && priceMatch;
-  });
+    });
+
+  }
+
+
+bookNow(flatId: number) {
+
+  const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    alert("Please login to book flat");
+
+    this.router.navigate(['/auth'], {
+      queryParams: { returnUrl: `/booking-confirm/${flatId}` }
+    });
+
+    return;
+  }
+
+  // If logged in → go normally
+  this.router.navigate(['/booking-confirm', flatId]);
 }
-  
+
+  // ⭐ Filter Flats
+  filterFlats() {
+
+    this.flats = this.allFlats.filter(flat => {
+
+      const towerMatch = this.selectedTower
+        ? flat.tower_name === this.selectedTower
+        : true;
+
+      const locationMatch = this.selectedLocation
+        ? flat.location === this.selectedLocation
+        : true;
+
+      let priceMatch = true;
+
+      if (this.selectedPriceRange) {
+
+        const price = flat.price;
+
+        if (this.selectedPriceRange === '0-5000')
+          priceMatch = price >= 0 && price <= 5000;
+
+        else if (this.selectedPriceRange === '5000-10000')
+          priceMatch = price > 5000 && price <= 10000;
+
+        else if (this.selectedPriceRange === '10000-20000')
+          priceMatch = price > 10000 && price <= 20000;
+
+        else if (this.selectedPriceRange === '20000+')
+          priceMatch = price > 20000;
+      }
+
+      return towerMatch && locationMatch && priceMatch;
+
+    });
+
+  }
+
 }

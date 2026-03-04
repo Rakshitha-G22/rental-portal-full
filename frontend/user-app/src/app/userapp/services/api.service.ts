@@ -1,13 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
 
-  private BASE_URL = `${environment.apiUrl}/api`;
-
+  private BASE_URL = environment.apiUrl; // ✅ REMOVE /api HERE
 
   constructor(private http: HttpClient) {}
 
@@ -24,7 +22,7 @@ export class ApiService {
   // ================= FLATS =================
 
   getFlats() {
-    return this.http.get(`${this.BASE_URL}/bookings/flats`);
+    return this.http.get(`${this.BASE_URL}/flats`);
   }
 
   // ================= BOOKINGS =================
@@ -41,24 +39,23 @@ export class ApiService {
     );
   }
 
-requestBooking(flatId: number, token: string) {
-  return this.http.post(
-    `${this.BASE_URL}/bookings/${flatId}`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
+  requestBooking(flatId: number, token: string) {
+    return this.http.post(
+      `${this.BASE_URL}/bookings/${flatId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    }
-  );
-}
+    );
+  }
 
-
-getMyBookings(token: string) {
-  return this.http.get(`${this.BASE_URL}/bookings/my`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-}
+  getMyBookings(token: string) {
+    return this.http.get(`${this.BASE_URL}/bookings/my`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
 
   cancelBooking(bookingId: number, token: string) {
     return this.http.put(
@@ -76,9 +73,7 @@ getMyBookings(token: string) {
     return this.http.get(
       `${this.BASE_URL}/bookings/receipt/${bookingId}`,
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       }
     );

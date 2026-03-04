@@ -4,21 +4,22 @@ import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+
   constructor(private http: HttpClient) {}
 
   register(data: { name: string; email: string; password: string }) {
-    return this.http.post(`${environment.apiUrl}/api/auth/register`, data);
+    return this.http.post(`${environment.apiUrl}/auth/register`, data);
   }
 
   login(data: { email: string; password: string }) {
-    return this.http.post(`${environment.apiUrl}/api/auth/login`, data);
+    return this.http.post(`${environment.apiUrl}/auth/login`, data);
   }
 
   saveToken(token: string) {
-    localStorage.setItem('token', token);
+    localStorage.setItem('access_token', token);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem('access_token');
   }
 }

@@ -8,11 +8,12 @@
 
     <!-- Button below, right aligned -->
     <div class="flex justify-end">
-      <button 
-        routerLink="/my-bookings"
-        class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition">
-        View My Bookings
-      </button>
+<button 
+  *ngIf="isLoggedIn"
+  routerLink="/my-bookings"
+  class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition">
+  View My Bookings
+</button>
     </div>
 
   </div>
@@ -121,7 +122,7 @@
 
   <button
     *ngIf="flat?.booking_status === null"
-    (click)="confirmBooking(flat.id)"
+    (click)="bookNow(flat.id)"
     class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded transition w-full">
     Book Now
   </button>

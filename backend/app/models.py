@@ -21,18 +21,30 @@ class User(db.Model):
 # ============================
 # FLAT MODEL
 # ============================
+from sqlalchemy.dialects.postgresql import JSON
+
 class Flat(db.Model):
     __tablename__ = "flats"
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100))
+
+    flat_number = db.Column(db.String(50), nullable=False)
+    flat_type = db.Column(db.String(50), nullable=False)
+
     location = db.Column(db.String(100))
-    price = db.Column(db.Integer)
+    price = db.Column(db.Float, nullable=False)
+
     image = db.Column(db.Text)
+
     tower_name = db.Column(db.String(10))
     floor = db.Column(db.Integer)
-    amenities = db.Column(db.Text)  # comma-separated or JSON string
+
+    amenities = db.Column(JSON)
+
     is_booked = db.Column(db.Boolean, default=False)
+
+    # created_at = db.Column(db.DateTime, server_default=db.func.now())
+    # updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     bookings = db.relationship("Booking", backref="flat", lazy=True)
 

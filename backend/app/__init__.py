@@ -15,6 +15,9 @@ jwt = JWTManager()
 def create_app():
 
     app = Flask(__name__)
+    from flask_cors import CORS
+
+    CORS(app, supports_credentials=True)
 
     # ==========================
     # CONFIG
@@ -57,20 +60,21 @@ def create_app():
     # ==========================
     # CORS CONFIG ⭐⭐⭐⭐⭐ (MOST IMPORTANT)
     # ==========================
-    CORS(
-    app,
-    supports_credentials=True,
-        resources={
-            r"/api/*": {
-                "origins": [
-                    "http://localhost:4200",
-                    "https://rental-portal-full-production.up.railway.app"
-                ],
-                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-                "allow_headers": ["Content-Type", "Authorization"]
-            }
-        }
-)
+#     CORS(
+#     app,
+#     supports_credentials=True,
+#         resources={
+#             r"/api/*": {
+#                 "origins": [
+#                     "http://localhost:4200",
+#                     "https://rental-portal-full-production.up.railway.app"
+#                 ],
+#                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+#                 "allow_headers": ["Content-Type", "Authorization"]
+#             }
+#         }
+# )
+
 
     # ==========================
     # IMPORT ROUTES

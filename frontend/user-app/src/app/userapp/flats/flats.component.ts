@@ -76,6 +76,12 @@ ngOnInit(): void {
 
 bookNow(flatId: number) {
 
+  const confirmBooking = confirm("Do you want to book this flat?");
+
+  if (!confirmBooking) {
+    return; // user clicked Cancel
+  }
+
   const token = localStorage.getItem('access_token');
 
   if (!token) {

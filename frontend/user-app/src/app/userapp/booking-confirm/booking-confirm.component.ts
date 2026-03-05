@@ -126,7 +126,7 @@ export class BookingConfirmComponent implements OnInit {
         console.error(err);
 
         if (err.status === 401) {
-          alert("Session expired. Please login again");
+          alert("Please login to book flat");
           localStorage.removeItem('access_token');
           this.router.navigate(['/auth']);
         }

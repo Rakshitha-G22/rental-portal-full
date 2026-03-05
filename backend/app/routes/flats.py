@@ -4,7 +4,6 @@ from sqlalchemy import func
 
 flats_bp = Blueprint("flats_bp", __name__)
 
-
 # ================= GET ALL FLATS =================
 @flats_bp.route("", methods=["GET"])
 @flats_bp.route("/", methods=["GET"])
@@ -54,7 +53,6 @@ def get_all_flats():
 # ================= GET SINGLE FLAT =================
 @flats_bp.route("/<int:flat_id>", methods=["GET"])
 def get_flat(flat_id):
-
     try:
         flat = Flat.query.get(flat_id)
 

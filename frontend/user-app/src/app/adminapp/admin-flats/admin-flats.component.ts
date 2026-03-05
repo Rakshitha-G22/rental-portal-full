@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 interface Tower {
   id: number;
@@ -10,107 +11,216 @@ interface Tower {
 
 interface Flat {
   id?: number;
+  flat_number: string;
+  flat_type: string;
   tower_name: string;
-  title: string;
   location: string;
   floor: number | null;
   price: number | null;
   image: string;
-  amenities: string;
+  amenities: string[];
+  is_booked?: boolean;
 }
 
 @Component({
   selector: 'app-admin-flats',
   standalone: true,
   imports: [CommonModule, HttpClientModule, FormsModule],
-  templateUrl: './admin-flats.component.html',
+  templateUrl: './admin-flats.component.html'
 })
 export class AdminFlatsComponent implements OnInit {
 
   towers: Tower[] = [];
   flats: Flat[] = [];
 
-  editingFlatId: number | null = null;   
+  editingFlatId: number | null = null;
+
+  amenitiesText = '';
 
   newFlat: Flat = this.resetFlat();
+
+  apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.loadTowers();
     this.loadFlats();
+    this.loadTowers();
   }
 
-  resetFlat(): Flat {
+  /* ================= AUTH HEADERS ================= */
+
+  getHeaders() {
+    const token = localStorage.getItem('access_token');
+
     return {
-      tower_name: '',
-      title: '',
-      location: '',
-      floor: 0,
-      price: 0,
-      image: '',
-      amenities: ''
+      headers: new HttpHeaders({
+        Authorization: token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      })
     };
   }
 
+  /* ================= LOAD DATA ================= */
+
   loadTowers() {
-    this.http.get<Tower[]>('http://localhost:5000/api/towers')
-      .subscribe(data => this.towers = data);
+    this.http.get<Tower[]>(`${this.apiUrl}/towers`, this.getHeaders())
+      .subscribe({
+        next: res => this.towers = res,
+        error: err => console.error(err)
+      });
   }
 
-  loadFlats() {
-    const token = localStorage.getItem('access_token');
+loadFlats() {
+this.http.get<Flat[]>(`${this.apiUrl}/admin/flats`, this.getHeaders())
+    .subscribe({
+      next: res => {
 
-    this.http.get<Flat[]>(
-      'http://localhost:5000/api/admin/flats',
-      { headers: { Authorization: `Bearer ${token}` } }
-    ).subscribe(data => this.flats = data);
-  }
+        this.flats = res.map((flat:any) => {
+
+          let amenitiesArray:any[] = [];
+
+          if (flat.amenities) {
+
+            if (Array.isArray(flat.amenities)) {
+              amenitiesArray = flat.amenities;
+            }
+            else if (typeof flat.amenities === 'string') {
+              amenitiesArray = flat.amenities
+                .split(',')
+                .map((a:any) => a.trim());
+            }
+
+          }
+
+          return {
+            ...flat,
+            amenities: amenitiesArray
+          };
+
+        });
+
+      },
+      error: err => console.error(err)
+    });
+
+}
+
+  /* ================= ADD FLAT ================= */
 
   addFlat() {
-    const token = localStorage.getItem('access_token');
+
+    const payload = {
+      ...this.newFlat,
+      amenities: this.amenitiesText
+        ? this.amenitiesText.split(',').map(a => a.trim())
+        : []
+    };
 
     if (this.editingFlatId) {
-      this.updateFlat();   
+      this.updateFlat();
       return;
     }
 
     this.http.post(
-      'http://localhost:5000/api/admin/flat',
-      this.newFlat,
-      { headers: { Authorization: `Bearer ${token}` } }
-    ).subscribe(() => {
-      alert('🎉 Flat added successfully!');
-      this.loadFlats();
-      this.newFlat = this.resetFlat();
+      `${this.apiUrl}/admin/flat`,
+      payload,
+      this.getHeaders()
+    ).subscribe({
+      next: () => {
+        alert('🎉 Flat added successfully');
+        this.loadFlats();
+        this.newFlat = this.resetFlat();
+        this.amenitiesText = '';
+      },
+      error: err => {
+        console.error(err);
+        alert('Failed to add flat');
+      }
     });
   }
 
+  /* ================= EDIT FLAT ================= */
+
   editFlat(flat: Flat) {
+
     this.editingFlatId = flat.id!;
-    this.newFlat = { ...flat };   
+
+    this.newFlat = { ...flat };
+
+    this.amenitiesText =
+      flat.amenities?.length
+        ? flat.amenities.join(', ')
+        : '';
   }
 
+  /* ================= UPDATE FLAT ================= */
+
   updateFlat() {
-    const token = localStorage.getItem('access_token');
+
+    const payload = {
+      ...this.newFlat,
+      amenities: this.amenitiesText
+        ? this.amenitiesText.split(',').map(a => a.trim())
+        : []
+    };
 
     this.http.put(
-      `http://localhost:5000/api/admin/flat/${this.editingFlatId}`,
-      this.newFlat,
-      { headers: { Authorization: `Bearer ${token}` } }
-    ).subscribe(() => {
-      alert('✏️ Flat updated successfully!');
-      this.loadFlats();
-      this.cancelEdit();
+      `${this.apiUrl}/admin/flat/${this.editingFlatId}`,
+      payload,
+      this.getHeaders()
+    ).subscribe({
+      next: () => {
+        alert('✏️ Flat updated successfully');
+        this.loadFlats();
+        this.cancelEdit();
+      },
+      error: err => {
+        console.error(err);
+        alert('Update failed');
+      }
+    });
+  }
+
+  /* ================= DELETE FLAT ================= */
+
+  deleteFlat(id: number) {
+
+    if (!confirm('Are you sure you want to delete this flat?')) return;
+
+    this.http.delete(
+      `${this.apiUrl}/admin/flat/${id}`,
+      this.getHeaders()
+    ).subscribe({
+      next: () => {
+        alert('🗑 Flat deleted');
+        this.loadFlats();
+      },
+      error: err => {
+        console.error(err);
+        alert('Delete failed');
+      }
     });
   }
 
   cancelEdit() {
     this.editingFlatId = null;
     this.newFlat = this.resetFlat();
+    this.amenitiesText = '';
   }
 
-  deleteFlat(index: number) {
-    this.flats.splice(index, 1);
+  /* ================= RESET MODEL ================= */
+
+  resetFlat(): Flat {
+    return {
+      flat_number: '',
+      flat_type: '',
+      tower_name: '',
+      location: '',
+      floor: null,
+      price: null,
+      image: '',
+      amenities: []
+    };
   }
 }

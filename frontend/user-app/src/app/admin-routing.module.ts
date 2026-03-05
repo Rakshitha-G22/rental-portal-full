@@ -7,6 +7,7 @@ import { AdminBookingsComponent } from './adminapp/admin-bookings/admin-bookings
 import { ReportsComponent } from './adminapp/reports/reports.component';
 import { adminGuard } from './guards/admin.guard';
 
+
 const routes: Routes = [
   {
     path: '',

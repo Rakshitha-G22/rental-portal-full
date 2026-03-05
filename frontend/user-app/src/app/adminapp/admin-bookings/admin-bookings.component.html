@@ -1,33 +1,91 @@
-<h1 class="text-2xl font-bold mb-4">Bookings Management</h1>
+<h1 class="text-2xl font-bold mb-4">📋 Bookings Management</h1>
 
 <table class="min-w-full border border-gray-300">
+
   <thead class="bg-gray-100">
     <tr>
-      <th class="border px-4 py-2">ID</th>
-      <th class="border px-4 py-2">Flat</th>
-      <th class="border px-4 py-2">Tenant</th>
-      <th class="border px-4 py-2">Date</th>
+      <th class="border px-4 py-2">Flat Details</th>
+      <th class="border px-4 py-2">User</th>
+      <th class="border px-4 py-2">Booked Date</th>
       <th class="border px-4 py-2">Status</th>
       <th class="border px-4 py-2">Actions</th>
     </tr>
   </thead>
+
   <tbody>
+
     <tr *ngFor="let booking of bookings" class="hover:bg-gray-50">
-      <td class="border px-4 py-2">{{ booking.id }}</td>
-      <td class="border px-4 py-2">{{ booking.flat_title }}</td>
-      <td class="border px-4 py-2">{{ booking.user_email }}</td>
-      <td class="border px-4 py-2">{{ booking.booked_on | date:'short' }}</td>
+
+      <!-- Flat Details -->
       <td class="border px-4 py-2">
-        <span [ngClass]="{
-          'text-green-600': booking.status==='Approved',
-          'text-red-600': booking.status==='Declined',
-          'text-yellow-600': booking.status==='Pending'
-        }">{{ booking.status }}</span>
+
+        🏠 <strong>Flat {{ booking.flat_number }}</strong> <br>
+
+        🏢 Tower: {{ booking.tower_name }} <br>
+
+        📍 Location: {{ booking.location }} <br>
+
+        🧱 Floor: {{ booking.floor }}
+
       </td>
+
+
+      <!-- User Details -->
       <td class="border px-4 py-2">
-        <button (click)="updateStatus(booking.id,'Approved')" class="text-green-600 mr-2">Approve</button>
-        <button (click)="updateStatus(booking.id,'Declined')" class="text-red-600">Decline</button>
+
+        👤 {{ booking.user_name }} <br>
+
+        📧 {{ booking.user_email }}
+
       </td>
+
+
+      <!-- Booking Date -->
+      <td class="border px-4 py-2">
+
+        {{ booking.booked_at | date:'short' }}
+
+      </td>
+
+
+      <!-- Status -->
+      <td class="border px-4 py-2">
+
+        <span
+          [ngClass]="{
+            'text-green-600': booking.status==='confirmed' || booking.status==='Approved',
+            'text-red-600': booking.status==='Declined' || booking.status==='cancelled',
+            'text-yellow-600': booking.status==='Pending'
+          }">
+
+          {{ booking.status }}
+
+        </span>
+
+      </td>
+
+
+      <!-- Actions -->
+      <td class="border px-4 py-2">
+
+<button
+  (click)="updateStatus(booking.id,'approved')"
+  class="text-green-600 mr-3 font-semibold">
+  ✅ Approve
+</button>
+
+        <button
+          (click)="updateStatus(booking.id,'declined')"
+          class="text-red-600 font-semibold">
+
+          ❌ Decline
+
+        </button>
+
+      </td>
+
     </tr>
+
   </tbody>
+
 </table>

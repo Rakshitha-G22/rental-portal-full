@@ -2,18 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { BookingService } from '../services/booking.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-my-bookings',
   templateUrl: './my-bookings.component.html',
   standalone: true,
-  imports: [CommonModule,RouterModule]
+  imports: [CommonModule, RouterModule]
 })
 export class MyBookingsComponent implements OnInit {
 
   bookings: any[] = [];
   loading = true;
   msg = '';
+
+  // ✅ Backend base URL (works for localhost + Railway)
+  baseUrl = environment.apiUrl.replace('/api', '');
 
   constructor(private bookingService: BookingService) {}
 
@@ -61,32 +65,32 @@ export class MyBookingsComponent implements OnInit {
 
   downloadPDF(id: number) {
 
-  const token = localStorage.getItem('access_token');
-  if (!token) {
-    alert("Please login first");
-    return;
-  }
-
-  this.bookingService.downloadReceipt(id, token).subscribe({
-    next: (blob: Blob) => {
-
-      const blobUrl = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = `Booking_Receipt_${id}.pdf`;
-
-      document.body.appendChild(link);
-      link.click();
-
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    },
-    error: (err: any) => {
-      console.error(err);
-      alert("Receipt download failed");
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert("Please login first");
+      return;
     }
-  });
-}
+
+    this.bookingService.downloadReceipt(id, token).subscribe({
+      next: (blob: Blob) => {
+
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `Booking_Receipt_${id}.pdf`;
+
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      },
+      error: (err: any) => {
+        console.error(err);
+        alert("Receipt download failed");
+      }
+    });
+  }
 
 }

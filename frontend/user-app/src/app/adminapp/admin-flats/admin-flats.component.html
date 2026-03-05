@@ -5,12 +5,16 @@
 <!-- ================== ADD / EDIT FORM ================== -->
 <div class="mb-8 max-w-6xl mx-auto p-4 bg-white rounded-xl shadow-md flex flex-wrap gap-4 justify-center">
 
-  <input [(ngModel)]="newFlat.tower_name"
-         placeholder="🏢 Tower (e.g., 1A, 1B)"
+  <input [(ngModel)]="newFlat.flat_number"
+         placeholder="🔢 Flat Number (101, 102)"
          class="border p-2 rounded shadow-sm"/>
 
-  <input [(ngModel)]="newFlat.title"
-         placeholder="🛏 Title (e.g., 3BHK, 2BHK)"
+  <input [(ngModel)]="newFlat.flat_type"
+         placeholder="🏠 Flat Type (2BHK, 3BHK)"
+         class="border p-2 rounded shadow-sm"/>
+
+  <input [(ngModel)]="newFlat.tower_name"
+         placeholder="🏢 Tower (1A, 1B)"
          class="border p-2 rounded shadow-sm"/>
 
   <input [(ngModel)]="newFlat.location"
@@ -31,11 +35,11 @@
          placeholder="🖼 Image URL"
          class="border p-2 rounded shadow-sm"/>
 
-  <input [(ngModel)]="newFlat.amenities"
-         placeholder="✨ Amenities (Pool, Gym, Parking)"
+  <input [(ngModel)]="amenitiesText"
+         placeholder="✨ Amenities (comma separated)"
          class="border p-2 rounded shadow-sm"/>
 
-  <!-- ✅ ADD / UPDATE BUTTON -->
+  <!-- Add / Update -->
   <button (click)="addFlat()"
           class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
 
@@ -43,7 +47,6 @@
 
   </button>
 
-  <!-- ✅ CANCEL BUTTON -->
   <button *ngIf="editingFlatId"
           (click)="cancelEdit()"
           class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
@@ -61,47 +64,51 @@
        class="border rounded-xl shadow-lg overflow-hidden flex flex-col">
 
     <img [src]="flat.image"
-         alt="Flat Image"
          class="w-full h-64 object-cover"/>
 
     <div class="p-4 flex-1 flex flex-col justify-between">
 
       <div>
-        <h3 class="text-xl font-bold mb-2">🏠 {{ flat.title }}</h3>
 
-        <p class="text-gray-600 mb-1">
-          <strong>🏢 Tower:</strong> {{ flat.tower_name }}
+        <h3 class="text-xl font-bold mb-2">
+          🏠 {{ flat.flat_type }}
+        </h3>
+
+        <p class="text-gray-600">
+          🔢 Flat No: {{ flat.flat_number }}
         </p>
 
-        <p class="text-gray-600 mb-1">
-          <strong>📍 Location:</strong> {{ flat.location }}
+        <p class="text-gray-600">
+          🏢 Tower: {{ flat.tower_name }}
         </p>
 
-        <p class="text-gray-600 mb-1">
-          <strong>🏬 Floor:</strong> {{ flat.floor }}
+        <p class="text-gray-600">
+          📍 Location: {{ flat.location }}
         </p>
 
-        <p class="text-gray-800 font-semibold mb-2">
+        <p class="text-gray-600">
+          🏬 Floor: {{ flat.floor }}
+        </p>
+
+        <p class="text-gray-800 font-semibold">
           💰 ₹{{ flat.price }}
         </p>
-
-        <p class="text-gray-600 mb-2">
-          <strong>✨ Amenities:</strong> {{ flat.amenities || 'Not specified' }}
-        </p>
+<p class="text-gray-600">
+  ✨ Amenities:
+  {{ flat.amenities.length ? flat.amenities.join(', ') : 'Not specified' }}
+</p>
       </div>
 
       <!-- ACTION BUTTONS -->
       <div class="flex flex-col gap-2 mt-3">
 
-        <!-- ✏️ EDIT BUTTON -->
         <button (click)="editFlat(flat)"
-                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full">
+                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
           ✏️ Edit
         </button>
 
-        <!-- 🗑 DELETE BUTTON -->
-        <button (click)="deleteFlat(i)"
-                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition w-full">
+        <button (click)="flat.id && deleteFlat(flat.id)"
+                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full">
           🗑 Delete
         </button>
 
@@ -112,8 +119,7 @@
 </div>
 
 
-<!-- EMPTY STATE -->
 <div *ngIf="flats.length === 0"
      class="text-gray-500 text-center text-lg mt-6">
-  📭 No flats added yet. Start by adding new flats above.
+  📭 No flats added yet.
 </div>

@@ -4,6 +4,24 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 
+interface Booking {
+
+  id: number;
+
+  flat_id: number;
+  flat_number: string;
+  tower_name: string;
+  location: string;
+  floor: number;
+
+  user_name: string;
+  user_email: string;
+
+  booked_at: string;
+
+  status: string;
+}
+
 @Component({
   selector: 'app-admin-bookings',
   standalone: true,
@@ -11,7 +29,8 @@ import { environment } from '../../../environments/environment';
   templateUrl: './admin-bookings.component.html',
 })
 export class AdminBookingsComponent implements OnInit {
-  bookings: any[] = [];
+
+  bookings: Booking[] = [];
 
   constructor(private http: HttpClient) {}
 
@@ -19,54 +38,81 @@ export class AdminBookingsComponent implements OnInit {
     this.loadBookings();
   }
 
-  // Helper to get JWT headers
-   private getAuthHeaders() {
-  const token = localStorage.getItem('access_token');
+  /* ================= AUTH HEADERS ================= */
 
-  if (!token) {
-    alert("Session expired. Please login again.");
-    throw new Error("Token not found");
+  private getAuthHeaders() {
+
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      alert("Session expired. Please login again.");
+      throw new Error("JWT Token missing");
+    }
+
+    return {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${token}`
+      })
+    };
   }
 
-  return {
-    headers: new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    })
-  };
-}
+  /* ================= LOAD BOOKINGS ================= */
 
-  // Load bookings from backend
   loadBookings() {
-    this.http
-      .get<any[]>(`${environment.apiUrl}/admin/bookings`, this.getAuthHeaders())
-      .subscribe({
-        next: (data) => {
-          // Map 'confirmed' status from DB to 'Pending' for display
-          this.bookings = data.map((b) => ({
-            ...b,
-            status: b.status === 'confirmed' ? 'Pending' : b.status,
-          }));
-        },
-        error: (err) => {
-          console.error('Error loading bookings:', err);
-          if (err.status === 401) alert('Unauthorized! Check JWT token.');
-        },
-      });
+
+    this.http.get<Booking[]>(
+      `${environment.apiUrl}/admin/bookings`,
+      this.getAuthHeaders()
+    ).subscribe({
+
+      next: (data) => {
+        this.bookings = data;
+      },
+
+      error: (err) => {
+
+        console.error("Error loading bookings:", err);
+
+        if (err.status === 401) {
+          alert("Unauthorized access");
+        }
+
+      }
+    });
   }
 
-  // Update booking status
+  /* ================= UPDATE STATUS ================= */
+
   updateStatus(id: number, status: string) {
-    this.http
-      .put(`${environment.apiUrl}/admin/booking/${id}`, { status }, this.getAuthHeaders())
-      .subscribe({
-        next: () => {
-          const b = this.bookings.find((b) => b.id === id);
-          if (b) b.status = status;
-        },
-        error: (err) => {
-          console.error('Error updating status:', err);
-          if (err.status === 401) alert('Unauthorized! Check JWT token.');
-        },
-      });
+
+    this.http.put(
+      `${environment.apiUrl}/admin/booking/${id}`,
+      { status },
+      this.getAuthHeaders()
+    ).subscribe({
+
+      next: () => {
+
+        const booking = this.bookings.find(b => b.id === id);
+
+        if (booking) {
+          booking.status = status;
+        }
+
+        alert("✅ Booking status updated");
+      },
+
+      error: (err) => {
+
+        console.error("Error updating booking:", err);
+
+        if (err.status === 401) {
+          alert("Unauthorized!");
+        }
+
+      }
+
+    });
   }
+
 }

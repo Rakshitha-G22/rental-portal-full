@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-admin-towers',
   standalone: true,
-  templateUrl: './admin-towers.component.html',
-  imports: [CommonModule,FormsModule,HttpClientModule]
+  imports: [CommonModule],
+  templateUrl: './admin-towers.component.html'
 })
 export class AdminTowersComponent implements OnInit {
 
@@ -18,27 +18,28 @@ export class AdminTowersComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.loadTowers();
+    this.getTowers();
   }
 
-  loadTowers() {
+  getTowers() {
+
   const token = localStorage.getItem('access_token');
 
-  this.http.get<any[]>('http://localhost:5000/api/admin/towers', {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).subscribe({
-    next: (data) => {
-      this.towers = data;
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error(err);
-      this.errorMsg = 'Failed to load towers';
-      this.loading = false;
-    }
-  });
-}
+  const headers = {
+    Authorization: `Bearer ${token}`
+  };
 
+  this.http.get<any[]>(`${environment.apiUrl}/admin/towers`, { headers })
+    .subscribe({
+      next: (data) => {
+        this.towers = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMsg = 'Failed to load towers';
+        this.loading = false;
+      }
+    });
+}
 }

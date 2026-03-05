@@ -7,25 +7,24 @@ import { environment } from '../../../environments/environment';
 })
 export class BookingService {
 
-  private bookingsUrl = environment.apiUrl;
+  private bookingsUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 
   // ✅ Create booking
-createBooking(data: any, token: string) {
+  createBooking(data: any, token: string) {
 
-  return this.http.post(
-    "http://localhost:5000/api/bookings",
-    data,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
+    return this.http.post(
+      `${this.bookingsUrl}/bookings`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
       }
-    }
-  );
-
-}
+    );
+  }
 
   // ✅ Get user bookings
   getMyBookings(token: string) {

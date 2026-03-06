@@ -49,6 +49,27 @@ def get_all_flats():
         return jsonify({"error": "Internal Server Error"}), 500
 
 
+@flats_bp.route("/api/flats", methods=["GET"])
+def get_flats():
+    flats = Flat.query.all()
+
+    flats_data = []
+    for flat in flats:
+        flats_data.append({
+            "id": flat.id,
+            "flat_number": flat.flat_number,
+            "flat_type": flat.flat_type,
+            "location": flat.location,
+            "tower_name": flat.tower_name,
+            "floor": flat.floor,
+            "price": flat.price,
+            "image": flat.image,
+            "is_booked": flat.is_booked
+        })
+
+    return jsonify(flats_data)
+
+
 # ================= GET SINGLE FLAT =================
 @flats_bp.route("/<int:flat_id>", methods=["GET"])
 def get_flat(flat_id):

@@ -72,37 +72,37 @@ export class AdminFlatsComponent implements OnInit {
   }
 
 loadFlats() {
-this.http.get<Flat[]>(`${this.apiUrl}/admin/flats`, this.getHeaders())
-    .subscribe({
-      next: res => {
 
-        this.flats = res.map((flat:any) => {
+ this.http.get<Flat[]>(`${this.apiUrl}/flats/`, this.getHeaders())
+ .subscribe({
+   next: res => {
 
-          let amenitiesArray:any[] = [];
+     this.flats = res.map((flat:any) => {
 
-          if (flat.amenities) {
+       let amenitiesArray:any[] = [];
 
-            if (Array.isArray(flat.amenities)) {
-              amenitiesArray = flat.amenities;
-            }
-            else if (typeof flat.amenities === 'string') {
-              amenitiesArray = flat.amenities
-                .split(',')
-                .map((a:any) => a.trim());
-            }
+       if (flat.amenities) {
 
-          }
+         if (Array.isArray(flat.amenities)) {
+           amenitiesArray = flat.amenities;
+         }
+         else if (typeof flat.amenities === 'string') {
+           amenitiesArray = flat.amenities
+           .split(',')
+           .map((a:any) => a.trim());
+         }
+       }
 
-          return {
-            ...flat,
-            amenities: amenitiesArray
-          };
+       return {
+         ...flat,
+         amenities: amenitiesArray
+       };
 
-        });
+     });
 
-      },
-      error: err => console.error(err)
-    });
+   },
+   error: err => console.error(err)
+ });
 
 }
 

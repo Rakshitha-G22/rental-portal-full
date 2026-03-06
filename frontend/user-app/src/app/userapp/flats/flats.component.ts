@@ -21,10 +21,17 @@ export class FlatsComponent implements OnInit {
 
   towers: string[] = [];
   locations: string[] = [];
+  flatNumbers: string[] = [];
+  flatTypes: string[] = [];
+
+
 
   selectedTower: string = '';
   selectedLocation: string = '';
   selectedPriceRange: string = '';
+
+  selectedFlatNumber: string = '';
+  selectedFlatType: string = '';
 
   isLoggedIn = false;
 
@@ -60,6 +67,8 @@ ngOnInit(): void {
 
         this.towers = [...new Set(data.map(f => f.tower_name))];
         this.locations = [...new Set(data.map(f => f.location))];
+        this.flatTypes = [...new Set(data.map(f => f.flat_type))];
+        this.flatNumbers = [...new Set(data.map(f => f.flat_number))];
 
         this.loading = false;
       },
@@ -98,6 +107,21 @@ bookNow(flatId: number) {
   this.router.navigate(['/booking-confirm', flatId]);
 }
 
+// filterFlats() {
+
+//   this.flats = this.allFlats.filter(flat => {
+
+//     return (
+//       (!this.selectedTower || flat.tower_name === this.selectedTower) &&
+//       (!this.selectedLocation || flat.location === this.selectedLocation) &&
+//       (!this.selectedFlatNumber || flat.flat_number == this.selectedFlatNumber) &&
+//       (!this.selectedFlatType || flat.flat_type === this.selectedFlatType)
+//     );
+
+//   });
+
+// }
+
   // ⭐ Filter Flats
   filterFlats() {
 
@@ -109,6 +133,14 @@ bookNow(flatId: number) {
 
       const locationMatch = this.selectedLocation
         ? flat.location === this.selectedLocation
+        : true;
+
+        const flatTypeMatch = this.selectedFlatType
+        ? flat.flat_type === this.selectedFlatType
+        : true;
+
+        const flatNumberMatch = this.selectedFlatNumber
+        ? flat.flat_number === this.selectedFlatNumber
         : true;
 
       let priceMatch = true;
@@ -130,10 +162,28 @@ bookNow(flatId: number) {
           priceMatch = price > 20000;
       }
 
-      return towerMatch && locationMatch && priceMatch;
+      return towerMatch && locationMatch && priceMatch && flatTypeMatch && flatNumberMatch;
 
     });
 
   }
+  resetFilters() {
+  this.selectedLocation = "";
+  this.selectedFlatType = "";
+  this.selectedTower = "";
+  this.selectedPriceRange = "";
+  this.selectedFlatNumber = "";
+
+  this.flats = this.allFlats;
+}
+sortOption: string = "";
+
+sortFlats() {
+  if (this.sortOption === "low") {
+    this.flats.sort((a, b) => a.price - b.price);
+  } else if (this.sortOption === "high") {
+    this.flats.sort((a, b) => b.price - a.price);
+  }
+}
 
 }

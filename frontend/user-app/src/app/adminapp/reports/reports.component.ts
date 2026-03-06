@@ -13,7 +13,7 @@ interface ApprovedBooking {
 interface ReportsResponse {
   approved: number;
   declined: number;
-  cancelled: number;
+  Cancelled: number;
   approved_bookings: ApprovedBooking[];
 }
 
@@ -27,7 +27,7 @@ export class ReportsComponent implements OnInit {
 
   approved = 0;
   declined = 0;
-  cancelled = 0;
+  Cancelled = 0;
 
   approvedBookings: ApprovedBooking[] = [];
 
@@ -68,7 +68,7 @@ export class ReportsComponent implements OnInit {
 
         this.approved = res.approved;
         this.declined = res.declined;
-        this.cancelled = res.cancelled;
+        this.Cancelled = res.Cancelled;
 
         this.approvedBookings = res.approved_bookings;
       },

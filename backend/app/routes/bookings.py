@@ -125,24 +125,58 @@ def my_bookings():
 def cancel_booking(booking_id):
 
     try:
+        # =============================
+        # DEBUG JWT USER
+        # =============================
         user_id = get_jwt_identity()
+        # print("JWT USER ID ➜", user_id)
 
+        # =============================
+        # FETCH BOOKING
+        # =============================
         booking = Booking.query.get(booking_id)
 
+        # print("REQUESTED BOOKING ID ➜", booking_id)
+
+        # =============================
+        # CHECK BOOKING EXISTS
+        # =============================
         if not booking:
-            return jsonify({"msg": "Booking not found"}), 404
+            # print("BOOKING STATUS ➜ NOT FOUND")
+            return jsonify({"error": "Booking not found"}), 404
 
-        if booking.user_id != user_id:
-            return jsonify({"msg": "Unauthorized"}), 403
+        # print("BOOKING OWNER USER ID ➜", booking.user_id)
 
-        booking.status = "rejected"
+        # =============================
+        # AUTH CHECK
+        # =============================
+        if int(booking.user_id) != int(user_id):
+            # print("AUTH RESULT ➜ FORBIDDEN (User mismatch)")
+            return jsonify({
+                "error": "Unauthorized access",
+                "jwt_user": user_id,
+                "booking_owner": booking.user_id
+            }), 403
+
+        # =============================
+        # DELETE BOOKING
+        # =============================
+        db.session.delete(booking)
         db.session.commit()
 
-        return jsonify({"msg": "Booking cancelled"}), 200
+        # print("BOOKING STATUS ➜ DELETED SUCCESSFULLY")
+
+        return jsonify({
+            "message": "Booking cancelled successfully",
+            "booking_id": booking_id
+        }), 200
 
     except Exception as e:
-        print("Cancel Booking Error:", str(e))
-        return jsonify({"msg": "Cancel failed"}), 500
+        # print("CANCEL BOOKING ERROR ➜", str(e))
+        return jsonify({
+            "error": "Server error",
+            "details": str(e)
+        }), 500
 
 
 # =====================================================

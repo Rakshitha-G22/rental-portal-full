@@ -1,6 +1,6 @@
 import os
 from flask_migrate import Migrate
-from flask import Flask,jsonify
+from flask import Flask,jsonify,request
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -24,10 +24,14 @@ def create_app():
     # ==========================
     # JWT CONFIG
     # ==========================
+    # app.config["JWT_SECRET_KEY"] = os.getenv(
+    #     "JWT_SECRET_KEY",
+    #     "rental-portal-super-secure-jwt-secret-key"
+    # )
     app.config["JWT_SECRET_KEY"] = os.getenv(
-        "JWT_SECRET_KEY",
-        "rental-portal-super-secure-jwt-secret-key"
-    )
+    "JWT_SECRET_KEY",
+    "dev-secret-key-change-in-production"
+)
 
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=5)
 
@@ -71,6 +75,13 @@ def create_app():
         }
     )
 
+
+    @app.before_request
+    def handle_options_request():
+        if request.method == "OPTIONS":
+            response = jsonify({})
+            response.status_code = 200
+            return response
     # ⭐ AFTER REQUEST HEADERS
     @app.after_request
     def add_headers(response):

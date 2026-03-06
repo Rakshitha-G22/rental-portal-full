@@ -53,8 +53,13 @@
         {{ range }}
       </option>
     </select>
+<!-- <select [(ngModel)]="sortOption" (change)="sortFlats()" class="border p-2 rounded">
+  <option value="">Sort By</option>
+  <option value="low">Price Low to High</option>
+  <option value="high">Price High to Low</option>
+</select> -->
 
-  </div>
+   </div>
 
   <!-- Loading -->
   <div *ngIf="loading" class="text-center text-gray-500 text-lg">

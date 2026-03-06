@@ -46,23 +46,23 @@ export class MyBookingsComponent implements OnInit {
     });
   }
 
-  cancel(booking: any) {
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
+ cancel(booking: any) {
+  const token = localStorage.getItem('access_token');
+  if (!token) return;
 
-    if (!confirm("Are you sure you want to cancel this booking?")) return;
+  if (!confirm("Are you sure you want to cancel this booking?")) return;
 
-    this.bookingService.cancelBooking(booking.id, token).subscribe({
-      next: () => {
-        booking.status = "Cancelled";
-      },
-      error: (err: any) => {
-        console.error(err);
-        alert("Cancellation failed.");
-      }
-    });
-  }
-
+  this.bookingService.cancelBooking(booking.id, token).subscribe({
+    next: () => {
+      booking.status = "Cancelled";
+      alert("Booking cancelled successfully.");
+    },
+    error: (err: any) => {
+      console.error(err);
+      alert("Cancellation failed. Please try again.");
+    }
+  });
+}
   downloadPDF(id: number) {
 
     const token = localStorage.getItem('access_token');

@@ -35,9 +35,13 @@
          placeholder="🖼 Image URL"
          class="border p-2 rounded shadow-sm"/>
 
-  <input [(ngModel)]="amenitiesText"
+  <!-- <input [(ngModel)]="amenitiesText"
          placeholder="✨ Amenities (comma separated)"
-         class="border p-2 rounded shadow-sm"/>
+         class="border p-2 rounded shadow-sm"/> -->
+         <input 
+  [(ngModel)]="amenitiesText"
+  placeholder="✨ Amenities (comma separated)"
+  class="border p-2 rounded shadow-sm"/>
 
   <!-- Add / Update -->
   <button (click)="addFlat()"
@@ -93,11 +97,15 @@
         <p class="text-gray-800 font-semibold">
           💰 ₹{{ flat.price }}
         </p>
-<p class="text-gray-600">
+<!-- <p class="text-gray-600">
   ✨ Amenities:
   {{ flat.amenities.length ? flat.amenities.join(', ') : 'Not specified' }}
 </p>
-      </div>
+      </div> -->
+<p class="text-gray-600">
+  ✨ Amenities:
+  {{ getAmenitiesText(flat?.amenities) }}
+</p>
 
       <!-- ACTION BUTTONS -->
       <div class="flex flex-col gap-2 mt-3">

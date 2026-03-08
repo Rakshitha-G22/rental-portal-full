@@ -3,6 +3,7 @@ import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
+import { FlatService } from 'app/userapp/services/flat.service';
 
 interface Tower {
   id: number;
@@ -20,6 +21,7 @@ interface Flat {
   image: string;
   amenities: string[];
   is_booked?: boolean;
+
 }
 
 @Component({
@@ -35,11 +37,21 @@ export class AdminFlatsComponent implements OnInit {
 
   editingFlatId: number | null = null;
 
-  amenitiesText = '';
+  // amenitiesText = '';
+  amenitiesText: string = '';
 
   newFlat: Flat = this.resetFlat();
 
   apiUrl = environment.apiUrl;
+
+  flatFormData: any = {
+  flat_number: '',
+  flat_type: '',
+  price: null,
+  tower_name: '',
+  location: '',
+  amenities: []
+};
 
   constructor(private http: HttpClient) {}
 
@@ -104,6 +116,62 @@ loadFlats() {
    error: err => console.error(err)
  });
 
+}
+
+getAmenitiesArray() {
+  return this.amenitiesText
+    ? this.amenitiesText
+        .split(',')
+        .map(a => a.trim())
+        .filter(a => a)
+    : [];
+}
+
+getAmenitiesText(amenities: any): string {
+
+  if (!amenities) return 'Not specified';
+
+  try {
+
+    // If backend sends stringified JSON
+    if (typeof amenities === 'string') {
+      const parsed = JSON.parse(amenities);
+
+      if (Array.isArray(parsed)) {
+        return parsed.join(', ');
+      }
+
+      return amenities;
+    }
+
+    // If backend sends array
+    if (Array.isArray(amenities)) {
+      return amenities.join(', ');
+    }
+
+  } catch (e) {
+    return 'Not specified';
+  }
+
+  return 'Not specified';
+}
+saveFlat() {
+
+  const amenitiesArray = this.amenitiesText
+    ? this.amenitiesText
+        .split(',')
+        .map(a => a.trim())
+        .filter(a => a)
+    : [];
+
+  const payload = {
+    ...this.flatFormData,
+    amenities: amenitiesArray
+  };
+
+  console.log("Prepared Flat Data:", payload);
+
+  alert("Flat data prepared successfully!");
 }
 
   /* ================= ADD FLAT ================= */

@@ -35,6 +35,9 @@ export class FlatsComponent implements OnInit {
 
   isLoggedIn = false;
 
+  showAvailableOnly: boolean = false;
+
+  
   priceRanges: string[] = [
     '0-5000',
     '5000-10000',
@@ -81,6 +84,17 @@ ngOnInit(): void {
     });
 
   }
+  getAmenitiesText(amenities: any): string {
+  if (!amenities) return 'Not specified';
+
+  if (Array.isArray(amenities)) {
+    return amenities.length ? amenities.join(', ') : 'Not specified';
+  }
+
+  return amenities;
+}
+
+  
 
 
 bookNow(flatId: number) {
@@ -161,10 +175,15 @@ bookNow(flatId: number) {
         else if (this.selectedPriceRange === '20000+')
           priceMatch = price > 20000;
       }
+      
+          const availabilityMatch = this.showAvailableOnly
+      ? !flat.is_booked   // Change to flat.status !== 'booked' if using status column
+      : true;
 
-      return towerMatch && locationMatch && priceMatch && flatTypeMatch && flatNumberMatch;
+      return towerMatch && locationMatch && priceMatch && flatTypeMatch && flatNumberMatch && availabilityMatch;
 
     });
+    
 
   }
   resetFilters() {

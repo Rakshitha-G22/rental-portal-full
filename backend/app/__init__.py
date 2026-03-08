@@ -15,6 +15,7 @@ jwt = JWTManager()
 def create_app():
 
     app = Flask(__name__)
+    logging.basicConfig(level=logging.DEBUG)
 
     # ==========================
     # CONFIG
